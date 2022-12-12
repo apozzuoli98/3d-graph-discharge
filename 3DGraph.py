@@ -1,4 +1,5 @@
 from cmath import nan
+import matplotlib as mplt
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -53,18 +54,17 @@ class DischargeMap:
         ax.set_yticklabels(list(self.data.columns)[::10])
         # ax.set_yticks(_date[::31])
         # ax.set_yticklabels(np.arange(12)+1)
-        ax.set_xlabel('Day')
-        ax.set_ylabel('Year')
+        ax.set_xlabel('Day', labelpad=10)
+        ax.set_ylabel('Year', labelpad=10)
         ax.set_zlabel('Discharge (m\u00b3/s)')
         year, date = np.meshgrid(_year, _date)
         arr = self.data.to_numpy()
-        nodes = [0,          0.005,         0.01,       0.025,          0.05,       0.1,        0.25,       0.5,        1]
-        colours = ["yellow", "yellow", "greenyellow", "lawngreen", "limegreen", "mediumseagreen",  "darkblue", "midnightblue", "magenta"]
-        cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colours)))
-        ax.plot_surface(date, year, arr, cmap=cmap, edgecolor='none', cstride=1, rstride=7)
-        m = cm.ScalarMappable(cmap=cmap)
-        m.set_array(arr)
-        plt.colorbar(m, shrink=0.5, pad=0.1)
+        cmap = (mplt.colors.ListedColormap(["yellow", "greenyellow", "lawngreen", "limegreen", "mediumseagreen",  "deepskyblue", "royalblue", "magenta"]))
+        bounds = [0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20]
+        norm = mplt.colors.BoundaryNorm(bounds, cmap.N, clip = True)
+        ax.plot_surface(date, year, arr, cmap=cmap, linewidth=0.1, edgecolor='black', cstride=1, rstride=1, norm=norm, vmax=20)
+
+        plt.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5, pad=0.1)
         plt.show()
 
 
@@ -74,7 +74,7 @@ def main():
         file = str(sys.argv[1])
         DischargeMap(20, file)
     else:
-        d = DischargeMap(20, "LittleRougeCreek.csv")
+        DischargeMap(20, "LittleRougeCreek.csv")
 
 
 if __name__ == "__main__":
